@@ -11,6 +11,10 @@ import "./Login.css";
 
 const Login = () => {
   const { enqueueSnackbar } = useSnackbar();
+  const [loginData, setLoginData] = useState({username:"", password:""});
+  const [loading, setLoading] = useState(false);
+
+  let history = useHistory();
 
   // TODO: CRIO_TASK_MODULE_LOGIN - Fetch the API response
   /**
@@ -38,6 +42,22 @@ const Login = () => {
    *
    */
   const login = async (formData) => {
+    setLoading(true);
+    try{
+      let response = await axios.post(`${config.endpoint}/auth/login`, formData);
+      setLoading(false);
+      persistLogin(response.data.token, response.data.username, response.data.balance);
+      enqueueSnackbar("Logged in successfully", { variant: `success` })
+      history.push("/");
+    }catch(e){
+      setLoading(false);
+      if(e.response.status === 400){
+        enqueueSnackbar(e.response.data.message, { variant: `error` })
+      }
+      else{
+        enqueueSnackbar("Something went wrong. Check that the backend is running, reachable and returns valid JSON.", { variant: `error` })
+      }
+    }
   };
 
   // TODO: CRIO_TASK_MODULE_LOGIN - Validate the input
@@ -56,6 +76,18 @@ const Login = () => {
    * -    Check that password field is not an empty value - "Password is a required field"
    */
   const validateInput = (data) => {
+    if(data.username === ""){
+      enqueueSnackbar("Username is a required field", { variant: `warning` })
+      return false;
+    }
+    else if(data.password === ""){
+      enqueueSnackbar("Password is a required field", { variant: `warning` })
+      return false;      
+    }
+    else{
+      return true;
+    }
+
   };
 
   // TODO: CRIO_TASK_MODULE_LOGIN - Persist user's login information
@@ -75,6 +107,9 @@ const Login = () => {
    * -    `balance` field in localStorage can be used to store the balance amount in the user's wallet
    */
   const persistLogin = (token, username, balance) => {
+    localStorage.setItem("token", token);
+    localStorage.setItem("username", username);
+    localStorage.setItem("balance", balance);
   };
 
   return (
@@ -87,6 +122,40 @@ const Login = () => {
       <Header hasHiddenAuthButtons />
       <Box className="content">
         <Stack spacing={2} className="form">
+        <h2 className="title">Login</h2>
+          <TextField
+            onChange={(e) =>setLoginData({...loginData,username:e.target.value})}
+            /* value={loginData.username} */
+            id="username"
+            label="Username"
+            variant="outlined"
+            title="Username"
+            name="username"
+            placeholder="Enter Username"
+            fullWidth
+          />
+          <TextField
+             onChange={(e) => setLoginData({...loginData,password:e.target.value})}
+             id="password"
+            variant="outlined"
+            label="Password"
+            name="password"
+            type="password"
+            fullWidth
+            placeholder="Enter Password"
+          />
+          {loading ? <Box sx={{ display: 'flex', alignItems:'center', justifyContent:'center'}}>
+      <CircularProgress />
+    </Box> : <Button onClick={async () => {if(validateInput(loginData)) login(loginData)}} variant="contained">
+    LOGIN TO QKART
+           </Button>}
+           
+          <p className="secondary-action">
+          Don't have an account?{" "}
+             <Link to="/register" className="link">
+             Register now
+             </Link>
+          </p>
         </Stack>
       </Box>
       <Footer />

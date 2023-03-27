@@ -14,6 +14,7 @@ const Register = () => {
   const [registerData, setRegisterData] = useState({username: "", password: "", confirmPassword: ""}) 
   const [loading, setLoading] = useState(false);
 
+  let history = useHistory();
 
   // TODO: CRIO_TASK_MODULE_REGISTER - Implement the register function
   /**
@@ -45,6 +46,7 @@ const Register = () => {
       let response = await axios.post(`${config.endpoint}/auth/register`, {username, password});
       setLoading(false);
       enqueueSnackbar("Registered successfully", { variant: `success` })
+      history.push("/login");
     }catch(e){
       setLoading(false);
       if(e.response.status === 400){
@@ -150,9 +152,9 @@ const Register = () => {
            
           <p className="secondary-action">
             Already have an account?{" "}
-             <a className="link" href="#">
+             <Link to="/login" className="link">
               Login here
-             </a>
+             </Link>
           </p>
         </Stack>
       </Box>
