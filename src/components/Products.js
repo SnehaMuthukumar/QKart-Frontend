@@ -12,6 +12,7 @@ import React, { useEffect, useState } from "react";
 import { config } from "../App";
 import Footer from "./Footer";
 import Header from "./Header";
+import ProductCard from "./ProductCard";
 import "./Products.css";
 
 // Definition of Data Structures used
@@ -28,6 +29,15 @@ import "./Products.css";
 
 
 const Products = () => {
+  const { enqueueSnackbar } = useSnackbar();
+  const [productsFetched, setProductsOnFetch] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [debounceTimeout, setDebounceTimeout] = useState(0);
+
+  useEffect(() => {
+    (async () =>{
+    setProductsOnFetch(await performAPICall());
+  })();}, []);
 
   // TODO: CRIO_TASK_MODULE_PRODUCTS - Fetch products data and store it
   /**
@@ -67,6 +77,18 @@ const Products = () => {
    * }
    */
   const performAPICall = async () => {
+    setLoading(true);
+    try{
+      let response = await axios.get(`${config.endpoint}/products`);
+      setLoading(false);
+
+      return response.data;
+    }catch(e){
+      setLoading(false);
+      console.log()
+      enqueueSnackbar("Something went wrong. Check the backend console for more details", { variant: `error` })
+      return null;
+    }
   };
 
   // TODO: CRIO_TASK_MODULE_PRODUCTS - Implement search logic
@@ -84,6 +106,18 @@ const Products = () => {
    *
    */
   const performSearch = async (text) => {
+    try{
+      let response = await axios.get(`${config.endpoint}/products/search?value=${text}`);
+      console.log(response);
+        //    setProductsOnFetch()
+      return response.data;
+    }catch(e){
+      if(e.response.status!==404){
+      console.log(e.response);
+      enqueueSnackbar("Something went wrong. Check that the backend is running, reachable and returns valid JSON.", { variant: `error` })
+      }
+      return null;
+    }
   };
 
   // TODO: CRIO_TASK_MODULE_PRODUCTS - Optimise API calls with debounce search implementation
@@ -98,10 +132,23 @@ const Products = () => {
    *    Timer id set for the previous debounce call
    *
    */
-  const debounceSearch = (event, debounceTimeout) => {
+   const debounceSearch = (event, debounceTimeout) => {    
+      if(debounceTimeout) {
+        clearTimeout(debounceTimeout);
+      }
+      let timeOut = setTimeout(() => {
+        (async () =>{
+          setProductsOnFetch(await performSearch(event.target.value));
+        })();
+  
+      }, 500); // Update set timeoutId   
+      setDebounceTimeout(timeOut);
   };
 
 
+
+
+  
 
 
 
@@ -111,7 +158,21 @@ const Products = () => {
     <div>
       <Header>
         {/* TODO: CRIO_TASK_MODULE_PRODUCTS - Display search bar in the header for Products page */}
-
+        <TextField
+        className="search-desktop"
+        size="small" style={{width:"22rem"}}
+        fullWidth
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <Search color="primary" />
+            </InputAdornment>
+          ),
+        }}
+        placeholder="Search for items/categories"
+        name="search"
+        onChange={(e)=>debounceSearch(e,debounceTimeout)}
+      />
       </Header>
 
       {/* Search view for mobiles */}
@@ -128,6 +189,7 @@ const Products = () => {
         }}
         placeholder="Search for items/categories"
         name="search"
+        onChange={(e)=>debounceSearch(e,debounceTimeout)}
       />
        <Grid container>
          <Grid item className="product-grid">
@@ -138,7 +200,27 @@ const Products = () => {
              </p>
            </Box>
          </Grid>
-       </Grid>
+         </Grid>
+
+         {loading? <div style={{display: "flex",flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100vh",
+    direction:"row"}}><div><CircularProgress/></div><div><p>Loading Products...</p></div></div> : 
+    <div style={{padding:"1rem"}}>
+      {productsFetched!==null?
+         <Grid container spacing={2}>
+         {productsFetched.map((product) => { return(
+          <Grid item xs={6} md={3}>
+          <ProductCard product={product}/>
+        </Grid>
+        )
+        })}</Grid>:<div style={{display: "flex",flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh"}}><div><SentimentDissatisfied/></div><div><p>No products found</p></div></div>
+      }</div>}
+        
       <Footer />
     </div>
   );

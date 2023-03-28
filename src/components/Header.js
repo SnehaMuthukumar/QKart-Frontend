@@ -8,7 +8,7 @@ import {Link, useHistory} from "react-router-dom";
 const Header = ({ children, hasHiddenAuthButtons }) => {
   const history = useHistory();
   const username=localStorage.getItem("username");
-
+  
   const logout = () => {
     localStorage.clear();window.location.reload();history.push("/");
   }
@@ -37,14 +37,14 @@ const Header = ({ children, hasHiddenAuthButtons }) => {
           <Link to="/" className="link">
           Back to explore
           </Link>
-        </Button>: localStorage.getItem("username")===""||localStorage.getItem("username")===null ? <Stack direction="row" spacing={2}>
+        </Button>: localStorage.getItem("username")===""||localStorage.getItem("username")===null ? <><div>{children}</div><Stack direction="row" spacing={2}>
   <Button onClick={() => redirectLogin()}
           variant="text"
         >LOGIN</Button>
   <Button onClick={()=>redirectRegister()}
           variant="contained"
         >REGISTER</Button>
-</Stack>: <Stack direction="row" spacing={2}>
+</Stack></>: <Stack direction="row" spacing={2}>
   
 <Avatar alt={username} src="avatar.png"/>
 <span style={{margin:"auto", paddingLeft:"0.5rem"}} className="username-text">{username}</span>
