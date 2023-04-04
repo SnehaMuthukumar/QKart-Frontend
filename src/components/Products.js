@@ -13,7 +13,10 @@ import { config } from "../App";
 import Footer from "./Footer";
 import Header from "./Header";
 import ProductCard from "./ProductCard";
+import Cart from "./Cart"
 import "./Products.css";
+
+import {generateCartItemsFrom} from "./Cart"
 
 // Definition of Data Structures used
 /**
@@ -41,11 +44,28 @@ const Products = () => {
   const [productsFetched, setProductsOnFetch] = useState([]);
   const [loading, setLoading] = useState(false);
   const [debounceTimeout, setDebounceTimeout] = useState(0);
+  const [products, setProducts] = useState([]);
+  const [cartItems, setCartItems] = useState([]);
+  const [completeCartData, setCompleteCartData] = useState([]);
+  
 
   useEffect(() => {
     (async () =>{
-    setProductsOnFetch(await performAPICall());
+      let productsAvailable = await performAPICall();
+      setProductsOnFetch(productsAvailable);
+    //setProductsOnFetch(await performAPICall());
+      setProducts(productsAvailable);
+      setCartItems(await fetchCart(localStorage.getItem("token")));
+      let completeIems = generateCartItemsFrom(cartItems, products);
+      setCompleteCartData(completeIems);
+      /* console.log(generateCartItemsFrom(cartItems, products));
+      setCompleteCartData(generateCartItemsFrom(cartItems, products));
+      console.log(completeCartData); */
   })();}, []);
+  console.log("welcomeee")
+  console.log(completeCartData);
+  console.log(products);
+  generateCartItemsFrom(cartItems, products);
 
   // TODO: CRIO_TASK_MODULE_PRODUCTS - Fetch products data and store it
   /**
@@ -89,7 +109,6 @@ const Products = () => {
     try{
       let response = await axios.get(`${config.endpoint}/products`);
       setLoading(false);
-
       return response.data;
     }catch(e){
       setLoading(false);
@@ -187,6 +206,13 @@ const Products = () => {
 
     try {
       // TODO: CRIO_TASK_MODULE_CART - Pass Bearer token inside "Authorization" header to get data from "GET /cart" API and return the response data
+      let response = await axios.get(`${config.endpoint}/cart`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      console.log(response.data);
+      return response.data;
     } catch (e) {
       if (e.response && e.response.status === 400) {
         enqueueSnackbar(e.response.data.message, { variant: "error" });
@@ -201,6 +227,7 @@ const Products = () => {
       return null;
     }
   };
+  
 
 
   // TODO: CRIO_TASK_MODULE_CART - Return if a product already exists in the cart
@@ -217,6 +244,12 @@ const Products = () => {
    *
    */
   const isItemInCart = (items, productId) => {
+    for(let item of items){
+      if(item["productId"]===productId){
+        return true;
+      }
+    }
+    return false;
   };
 
   /**
@@ -263,6 +296,55 @@ const Products = () => {
     qty,
     options = { preventDuplicate: false }
   ) => {
+    console.log("add to cart invoked")
+    console.log(token);
+    console.log(items);
+    console.log(products);
+    console.log(productId);
+    console.log(qty);
+    console.log(options);
+    
+    if(token===null){
+      enqueueSnackbar("Login to add an item to the Cart", {variant:"warning"})
+      return;
+    }
+    if(options){
+      if(isItemInCart(items, productId)){
+        enqueueSnackbar("Item already in cart. Use the cart sidebar to update quantity or remove item.", {variant:"warning"})
+        return;
+      }
+      else{
+        try{
+        let response = await axios.post(`${config.endpoint}/cart`, {"productId":productId,"qty":qty},{
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        setCartItems(await fetchCart(localStorage.getItem("token")));
+      }catch(e){
+        console.log(e);
+      }
+      }
+    }
+    else{
+      try{
+        let response = await axios.post(`${config.endpoint}/cart`, {"productId":productId,"qty":qty},{
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        setCartItems(await fetchCart(localStorage.getItem("token")));
+      }catch(e){
+        console.log(e);
+      }
+    }
+    
+    
+   /*  let response = await axios.get(`${config.endpoint}/cart`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    }); */
   };
 
 
@@ -303,6 +385,8 @@ const Products = () => {
         name="search"
         onChange={(e)=>debounceSearch(e,debounceTimeout)}
       />
+      <Grid container>
+        <Grid item xs={12} md={localStorage.getItem("username")?9:12}>
        <Grid container>
          <Grid item className="product-grid">
            <Box className="hero">
@@ -324,7 +408,7 @@ const Products = () => {
          <Grid container spacing={2}>
          {productsFetched.map((product) => { return(
           <Grid item xs={6} md={3}>
-          <ProductCard product={product}/>
+          <ProductCard product={product} handleAddToCart={addToCart} cartItems={cartItems} products={products}/>
         </Grid>
         )
         })}</Grid>:<div style={{display: "flex",flexDirection: "column",
@@ -332,6 +416,11 @@ const Products = () => {
         alignItems: "center",
         height: "100vh"}}><div><SentimentDissatisfied/></div><div><p>No products found</p></div></div>
       }</div>}
+      </Grid>
+      {localStorage.getItem("username") && <Grid item xs={12} md={3} style={{backgroundColor: "#E9F5E1"}}>
+        <Cart products={products} items={generateCartItemsFrom(cartItems, products)} handleQuantity={addToCart}/>
+        </Grid>}
+      </Grid>
         
       <Footer />
     </div>

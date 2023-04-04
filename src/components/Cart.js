@@ -48,6 +48,20 @@ import "./Cart.css";
  *
  */
 export const generateCartItemsFrom = (cartData, productsData) => {
+  if(cartData===undefined || cartData.length===0)
+  return [];
+  let cartItem = [];
+  for(let item of cartData){
+    for(let product of productsData){
+      if(item["productId"]===product["_id"]){
+        let completeCartItem = product;
+        completeCartItem["qty"] = item["qty"];
+        cartItem.push(completeCartItem);
+      }
+    }
+/*     cartItem.push(productsData.filter((product) => {return product["_id"]===item["productId"]}))
+ */  }
+  return cartItem;
 };
 
 /**
@@ -61,6 +75,11 @@ export const generateCartItemsFrom = (cartData, productsData) => {
  *
  */
 export const getTotalCartValue = (items = []) => {
+  let sum=0;
+  for(let item of items){
+    sum+=item["cost"]*item["qty"];
+  }
+  return sum;
 };
 
 
@@ -82,16 +101,20 @@ const ItemQuantity = ({
   value,
   handleAdd,
   handleDelete,
+  items, 
+  products, 
+  productId,
+  qty
 }) => {
   return (
     <Stack direction="row" alignItems="center">
-      <IconButton size="small" color="primary" onClick={handleDelete}>
+      <IconButton size="small" color="primary" onClick={()=>handleDelete(localStorage.getItem("token"), items, products, productId, qty-1,false)}>
         <RemoveOutlined />
       </IconButton>
       <Box padding="0.5rem" data-testid="item-qty">
         {value}
       </Box>
-      <IconButton size="small" color="primary" onClick={handleAdd}>
+      <IconButton size="small" color="primary" onClick={()=>handleAdd(localStorage.getItem("token"), items, products, productId, qty+1,false)}>
         <AddOutlined />
       </IconButton>
     </Stack>
@@ -114,10 +137,10 @@ const ItemQuantity = ({
  */
 const Cart = ({
   products,
-  items = [],
+  items,
   handleQuantity,
 }) => {
-
+  console.log(items);
   if (!items.length) {
     return (
       <Box className="cart empty">
@@ -133,6 +156,48 @@ const Cart = ({
     <>
       <Box className="cart">
         {/* TODO: CRIO_TASK_MODULE_CART - Display view for each cart item with non-zero quantity */}
+
+      
+        {items.map((item) => {
+          return(
+            
+<Box display="flex" alignItems="flex-start" padding="1rem">
+  {console.log(`hiii ${item["name"]}`)}
+    <Box className="image-container">
+      {/* {console.log(item["image"])} */}
+        <img
+            // Add product image
+            src={item["image"]}
+            // Add product name as alt eext
+            alt={item["name"]}
+            width="100%"
+            height="100%"
+        />
+    </Box>
+    <Box
+        display="flex"
+        flexDirection="column"
+        justifyContent="space-between"
+        height="6rem"
+        paddingX="1rem"
+    >
+        <div>{item["name"]}</div>
+        <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+        >
+        <ItemQuantity value={item["qty"]} handleAdd={handleQuantity} handleDelete={handleQuantity} items={items} products={products} productId={item["_id"]} qty={item["qty"]}
+        // Add required props by checking implementation
+        />
+        <Box padding="0.5rem" fontWeight="700">
+            ${item["cost"]}
+        </Box>
+        </Box>
+    </Box>
+</Box>
+          )
+        })}
         <Box
           padding="1rem"
           display="flex"

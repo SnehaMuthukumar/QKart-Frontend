@@ -11,7 +11,7 @@ import {
 import React from "react";
 import "./ProductCard.css";
 
-const ProductCard = ({ product, handleAddToCart }) => {
+const ProductCard = ({ product, handleAddToCart, cartItems, products }) => {
   return (
     <Card className="card">
         <img src={product.image} alt={product.name}/>
@@ -25,7 +25,7 @@ const ProductCard = ({ product, handleAddToCart }) => {
         <Rating gutterBottom name="read-only" value={product.rating} readOnly/>
       </CardContent>
       <CardActions className="card-actions">
-        <Button style={{width:"100%"}} className="card-button" variant="contained"><AddShoppingCartOutlined/>ADD TO CART</Button>
+        <Button onClick={()=>{handleAddToCart(localStorage.getItem("token"), cartItems, products, product["_id"],1, true)}} style={{width:"100%"}} className="card-button" variant="contained"><AddShoppingCartOutlined/>ADD TO CART</Button>
       </CardActions>
     </Card>
   );
