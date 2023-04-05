@@ -46,25 +46,21 @@ const Products = () => {
   const [debounceTimeout, setDebounceTimeout] = useState(0);
   const [products, setProducts] = useState([]);
   const [cartItems, setCartItems] = useState([]);
-  const [completeCartData, setCompleteCartData] = useState([]);
   
 
   useEffect(() => {
     (async () =>{
       let productsAvailable = await performAPICall();
       setProductsOnFetch(productsAvailable);
-    //setProductsOnFetch(await performAPICall());
       setProducts(productsAvailable);
       setCartItems(await fetchCart(localStorage.getItem("token")));
-      let completeIems = generateCartItemsFrom(cartItems, products);
-      setCompleteCartData(completeIems);
       /* console.log(generateCartItemsFrom(cartItems, products));
       setCompleteCartData(generateCartItemsFrom(cartItems, products));
       console.log(completeCartData); */
   })();}, []);
-  console.log("welcomeee")
+  /* console.log("welcomeee")
   console.log(completeCartData);
-  console.log(products);
+  console.log(products); */
   generateCartItemsFrom(cartItems, products);
 
   // TODO: CRIO_TASK_MODULE_PRODUCTS - Fetch products data and store it
@@ -112,7 +108,7 @@ const Products = () => {
       return response.data;
     }catch(e){
       setLoading(false);
-      console.log()
+     /*  console.log() */
       enqueueSnackbar("Something went wrong. Check the backend console for more details", { variant: `error` })
       return null;
     }
@@ -135,12 +131,12 @@ const Products = () => {
   const performSearch = async (text) => {
     try{
       let response = await axios.get(`${config.endpoint}/products/search?value=${text}`);
-      console.log(response);
+     /*  console.log(response); */
         //    setProductsOnFetch()
       return response.data;
     }catch(e){
       if(e.response.status!==404){
-      console.log(e.response);
+      /* console.log(e.response); */
       enqueueSnackbar("Something went wrong. Check that the backend is running, reachable and returns valid JSON.", { variant: `error` })
       }
       return null;
@@ -211,7 +207,7 @@ const Products = () => {
           'Authorization': `Bearer ${token}`
         }
       });
-      console.log(response.data);
+     /*  console.log(response.data); */
       return response.data;
     } catch (e) {
       if (e.response && e.response.status === 400) {
@@ -296,13 +292,13 @@ const Products = () => {
     qty,
     options = { preventDuplicate: false }
   ) => {
-    console.log("add to cart invoked")
+   /*  console.log("add to cart invoked")
     console.log(token);
     console.log(items);
     console.log(products);
     console.log(productId);
     console.log(qty);
-    console.log(options);
+    console.log(options); */
     
     if(token===null){
       enqueueSnackbar("Login to add an item to the Cart", {variant:"warning"})
@@ -320,7 +316,10 @@ const Products = () => {
             'Authorization': `Bearer ${token}`
           }
         });
-        setCartItems(await fetchCart(localStorage.getItem("token")));
+        console.log("helloooooo")
+        console.log(response.data);
+        setCartItems(response.data);
+        console.log(cartItems);
       }catch(e){
         console.log(e);
       }
@@ -333,7 +332,7 @@ const Products = () => {
             'Authorization': `Bearer ${token}`
           }
         });
-        setCartItems(await fetchCart(localStorage.getItem("token")));
+        setCartItems(response.data);
       }catch(e){
         console.log(e);
       }

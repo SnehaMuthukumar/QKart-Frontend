@@ -140,7 +140,7 @@ const Cart = ({
   items,
   handleQuantity,
 }) => {
-  console.log(items);
+  const history = useHistory();
   if (!items.length) {
     return (
       <Box className="cart empty">
@@ -156,15 +156,11 @@ const Cart = ({
     <>
       <Box className="cart">
         {/* TODO: CRIO_TASK_MODULE_CART - Display view for each cart item with non-zero quantity */}
-
-      
         {items.map((item) => {
           return(
             
 <Box display="flex" alignItems="flex-start" padding="1rem">
-  {console.log(`hiii ${item["name"]}`)}
     <Box className="image-container">
-      {/* {console.log(item["image"])} */}
         <img
             // Add product image
             src={item["image"]}
@@ -219,7 +215,7 @@ const Cart = ({
         </Box>
 
         <Box display="flex" justifyContent="flex-end" className="cart-footer">
-          <Button
+          <Button onClick={()=>history.push("/checkout")}
             color="primary"
             variant="contained"
             startIcon={<ShoppingCart />}

@@ -45,12 +45,55 @@ import Header from "./Header";
 
 
 const Checkout = () => {
+  const [products, setProducts] = useState([]);
+  const [cartItems, setCartItems] = useState([]);
+  const [items, setItems] = useState([]);
+  const { enqueueSnackbar } = useSnackbar();
+  
+  useEffect(() => {
+    (async () =>{
+      setProducts(await performAPICall());
+      setCartItems(await fetchCart(localStorage.getItem("token")));
+      setItems(generateCartItemsFrom(cartItems, products));
+  })();}, []);
+  console.log(items);
+  const performAPICall = async () => {
+    try{
+      let response = await axios.get(`${config.endpoint}/products`);
+      return response.data;
+    }catch(e){
+      console.log()
+      enqueueSnackbar("Something went wrong. Check the backend console for more details", { variant: `error` })
+      return null;
+    }
+  };
 
+  const fetchCart = async (token) => {
+    if (!token) return;
 
-
-
-
-
+    try {
+      // TODO: CRIO_TASK_MODULE_CART - Pass Bearer token inside "Authorization" header to get data from "GET /cart" API and return the response data
+      let response = await axios.get(`${config.endpoint}/cart`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      console.log(response.data);
+      return response.data;
+    } catch (e) {
+      if (e.response && e.response.status === 400) {
+        enqueueSnackbar(e.response.data.message, { variant: "error" });
+      } else {
+        enqueueSnackbar(
+          "Could not fetch cart details. Check that the backend is running, reachable and returns valid JSON.",
+          {
+            variant: "error",
+          }
+        );
+      }
+      return null;
+    }
+  };
 
 
 
