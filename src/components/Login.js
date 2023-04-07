@@ -45,10 +45,10 @@ const Login = () => {
     setLoading(true);
     try{
       let response = await axios.post(`${config.endpoint}/auth/login`, formData);
-      setLoading(false);
+      setLoading(false);//on successful response username, token and balance stored in localStorage
       persistLogin(response.data.token, response.data.username, response.data.balance);
       enqueueSnackbar("Logged in successfully", { variant: `success` })
-      history.push("/");
+      history.push("/");//user redirected to products page
     }catch(e){
       setLoading(false);
       if(e.response.status === 400){
@@ -124,7 +124,6 @@ const Login = () => {
           <h2 className="title">Login</h2>
           <TextField
             onChange={(e) =>setLoginData({...loginData,username:e.target.value})}
-            /* value={loginData.username} */
             id="username"
             label="Username"
             variant="outlined"

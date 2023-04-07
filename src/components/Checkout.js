@@ -95,6 +95,7 @@ const AddNewAddressView = ({
         multiline
         minRows={4}
         placeholder="Enter your complete address"
+        //curNewAddress parameter denotes the previous state
         onChange={(e)=> {handleNewAddress((currNewAddress) => 
           ({
           ...currNewAddress,

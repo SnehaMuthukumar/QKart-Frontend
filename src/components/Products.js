@@ -49,6 +49,7 @@ const Products = () => {
   
   useEffect(() => {
     (async () =>{
+      //on page load products available and cart items states are set by making api calls
       let productsAvailable = await performAPICall();
       setProductsOnFetch(productsAvailable);
       setProducts(productsAvailable);
@@ -92,6 +93,7 @@ const Products = () => {
    *      "message": "Something went wrong. Check the backend console for more details"
    * }
    */
+  //returns all the products available
   const performAPICall = async () => {
     setLoading(true);
     try{
@@ -119,6 +121,7 @@ const Products = () => {
    * API endpoint - "GET /products/search?value=<search-query>"
    *
    */
+
   const performSearch = async (text) => {
     try{
       let response = await axios.get(`${config.endpoint}/products/search?value=${text}`);
@@ -184,6 +187,7 @@ const Products = () => {
    *      "message": "Protected route, Oauth2 Bearer token not found"
    * }
    */
+  
   const fetchCart = async (token) => {
     if (!token) return;
     try {
@@ -281,7 +285,7 @@ const Products = () => {
       enqueueSnackbar("Login to add an item to the Cart", {variant:"warning"})
       return;
     }
-    if(options){
+    if(options){ //add to cart button
       if(isItemInCart(items, productId)){
         enqueueSnackbar("Item already in cart. Use the cart sidebar to update quantity or remove item.", {variant:"warning"})
         return;
@@ -308,7 +312,7 @@ const Products = () => {
         }
       }
     }
-    else{
+    else{ //increment and decrement button
       try{
         let response = await axios.post(`${config.endpoint}/cart`, {"productId":productId,"qty":qty},{
           headers: {
