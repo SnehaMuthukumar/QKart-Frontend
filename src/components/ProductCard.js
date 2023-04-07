@@ -22,7 +22,7 @@ const ProductCard = ({ product, handleAddToCart, cartItems, products }) => {
         <Typography gutterBottom variant="h6" style={{ fontWeight: 600 }} component="div">
           ${product.cost}
         </Typography>
-        <Rating gutterBottom name="read-only" value={product.rating} readOnly/>
+        <Rating name="read-only" value={product.rating} readOnly/>
       </CardContent>
       <CardActions className="card-actions">
         <Button onClick={()=>{handleAddToCart(localStorage.getItem("token"), cartItems, products, product["_id"],1, true)}} style={{width:"100%"}} className="card-button" variant="contained"><AddShoppingCartOutlined/>ADD TO CART</Button>

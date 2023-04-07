@@ -29,30 +29,43 @@ const Header = ({ children, hasHiddenAuthButtons }) => {
         <Box className="header-title">
             <img src="logo_light.svg" alt="QKart-icon"></img>
         </Box>
-        {hasHiddenAuthButtons ? <Button onClick={() => redirectProduct()}
-          className="explore-button"
-          startIcon={<ArrowBackIcon />}
-          variant="text"
-        >
-          <Link to="/" className="link">
-          Back to explore
-          </Link>
-        </Button>:<><div>{children}</div>{localStorage.getItem("username")===""||localStorage.getItem("username")===null ? <Stack direction="row" spacing={2}>
-  <Button onClick={() => redirectLogin()}
-          variant="text"
-        >LOGIN</Button>
-  <Button onClick={()=>redirectRegister()}
-          variant="contained"
-        >REGISTER</Button>
-</Stack>: <Stack direction="row" spacing={2}>
-  
-<Avatar alt={username} src="avatar.png"/>
-<span style={{margin:"auto", paddingLeft:"0.5rem"}} className="username-text">{username}</span>
-
-  <Button onClick={() => logout()}
-          variant="text"
-        >LOGOUT</Button>
-</Stack>}</>}
+        {hasHiddenAuthButtons ? 
+          <Button onClick={() => redirectProduct()}
+            className="explore-button"
+            startIcon={<ArrowBackIcon />}
+            variant="text"
+          >
+            <Link to="/" className="link">
+            Back to explore
+            </Link>
+          </Button>:
+          <>
+            <div>{children}</div>
+            {localStorage.getItem("username")===""||localStorage.getItem("username")===null ? 
+              <Stack direction="row" spacing={2}>
+                <Button onClick={() => redirectLogin()}
+                  variant="text"
+                >
+                  LOGIN
+                </Button>
+                <Button onClick={()=>redirectRegister()}
+                  variant="contained"
+                >
+                  REGISTER
+                </Button>
+              </Stack>: 
+              <Stack direction="row" spacing={2}>
+                <Avatar alt={username} src="avatar.png"/>
+                <span style={{margin:"auto", paddingLeft:"0.5rem"}} className="username-text">{username}</span>
+                <Button onClick={() => logout()}
+                  variant="text"
+                >
+                  LOGOUT
+                </Button>
+              </Stack>
+            }
+          </>
+        }
       </Box>
     );
 };

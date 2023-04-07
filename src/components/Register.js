@@ -40,20 +40,24 @@ const Register = () => {
    * }
    */
   const register = async (formData) => {
-    const {username, password} = formData;
-    setLoading(true);
-    try{
-      let response = await axios.post(`${config.endpoint}/auth/register`, {username, password});
-      setLoading(false);
-      enqueueSnackbar("Registered successfully", { variant: `success` })
-      history.push("/login");
-    }catch(e){
-      setLoading(false);
-      if(e.response.status === 400){
-        enqueueSnackbar(e.response.data.message, { variant: `error` })
-      }
-      else{
-        enqueueSnackbar("Something went wrong. Check that the backend is running, reachable and returns valid JSON.", { variant: `error` })
+    //formData contains username, password and confirmPassword
+    //need to post username and password alone
+    if(validateInput(formData)) {
+      const {username, password} = formData;
+      setLoading(true);
+      try{
+        let response = await axios.post(`${config.endpoint}/auth/register`, {username, password});
+        setLoading(false);
+        enqueueSnackbar("Registered successfully", { variant: `success` })
+        history.push("/login"); //on successful registration, user redirected to login page
+      }catch(e){
+        setLoading(false);
+        if(e.response.status === 400){ //if username already exists
+          enqueueSnackbar(e.response.data.message, { variant: `error` })
+        }
+        else{
+          enqueueSnackbar("Something went wrong. Check that the backend is running, reachable and returns valid JSON.", { variant: `error` })
+        }
       }
     }
   };
@@ -144,12 +148,14 @@ const Register = () => {
             type="password"
             fullWidth
           />
-          {loading ? <Box sx={{ display: 'flex', alignItems:'center', justifyContent:'center'}}>
-      <CircularProgress />
-    </Box> : <Button onClick={async () => {if(validateInput(registerData)) register(registerData)}} className="button" variant="contained">
-            Register Now
-           </Button>}
-           
+          {loading ? 
+            <Box sx={{ display: 'flex', alignItems:'center', justifyContent:'center'}}>
+              <CircularProgress />
+            </Box> : 
+            <Button onClick={() => {register(registerData)}} className="button" variant="contained">
+              Register Now
+            </Button>
+          }
           <p className="secondary-action">
             Already have an account?{" "}
              <Link to="/login" className="link">

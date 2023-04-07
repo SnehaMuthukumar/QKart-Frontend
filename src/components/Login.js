@@ -87,7 +87,6 @@ const Login = () => {
     else{
       return true;
     }
-
   };
 
   // TODO: CRIO_TASK_MODULE_LOGIN - Persist user's login information
@@ -108,7 +107,6 @@ const Login = () => {
    */
   const persistLogin = (token, username, balance) => {
     localStorage.setItem("token", token);
-    console.log(token);
     localStorage.setItem("username", username);
     localStorage.setItem("balance", balance);
   };
@@ -123,7 +121,7 @@ const Login = () => {
       <Header hasHiddenAuthButtons />
       <Box className="content">
         <Stack spacing={2} className="form">
-        <h2 className="title">Login</h2>
+          <h2 className="title">Login</h2>
           <TextField
             onChange={(e) =>setLoginData({...loginData,username:e.target.value})}
             /* value={loginData.username} */
@@ -145,17 +143,19 @@ const Login = () => {
             fullWidth
             placeholder="Enter Password"
           />
-          {loading ? <Box sx={{ display: 'flex', alignItems:'center', justifyContent:'center'}}>
-      <CircularProgress />
-    </Box> : <Button onClick={async () => {if(validateInput(loginData)) login(loginData)}} variant="contained">
-    LOGIN TO QKART
-           </Button>}
-           
+          {loading ? 
+            <Box sx={{ display: 'flex', alignItems:'center', justifyContent:'center'}}>
+              <CircularProgress />
+            </Box> : 
+            <Button onClick={async () => {if(validateInput(loginData)) login(loginData)}} variant="contained">
+              LOGIN TO QKART
+           </Button>
+          }
           <p className="secondary-action">
-          Don't have an account?{" "}
-             <Link to="/register" className="link">
-             Register now
-             </Link>
+            Don't have an account?{" "}
+            <Link to="/register" className="link">
+            Register now
+            </Link>
           </p>
         </Stack>
       </Box>
